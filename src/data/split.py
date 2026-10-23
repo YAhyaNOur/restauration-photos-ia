@@ -16,9 +16,9 @@ def main():
     train = sorted(names[100:])
     val = sorted(f.name for f in VALID_HR.glob("*.png"))
 
-    (OUT / "train.txt").write_text("\n".join(train))
-    (OUT / "val.txt").write_text("\n".join(val))
-    (OUT / "test.txt").write_text("\n".join(test))
+    (OUT / "train.txt").write_text("\n".join(train) + "\n", newline="\n")
+    (OUT / "val.txt").write_text("\n".join(val) + "\n", newline="\n")
+    (OUT / "test.txt").write_text("\n".join(test) + "\n", newline="\n")
     print(f"train={len(train)} val={len(val)} test={len(test)}")
 
 
