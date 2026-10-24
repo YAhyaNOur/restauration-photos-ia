@@ -1,0 +1,20 @@
+stages:
+  degrade_train:
+    cmd: python src/data/degrade.py --input data/raw/DIV2K_train_HR --output data/processed/DIV2K_train_LR --scale ${degrade.scale} --blur ${degrade.blur} --noise ${degrade.noise} --jpeg ${degrade.jpeg}
+    deps:
+      - data/raw/DIV2K_train_HR
+      - src/data/degrade.py
+    params:
+      - degrade
+    outs:
+      - data/processed/DIV2K_train_LR
+
+  degrade_valid:
+    cmd: python src/data/degrade.py --input data/raw/DIV2K_valid_HR --output data/processed/DIV2K_valid_LR --scale ${degrade.scale} --blur ${degrade.blur} --noise ${degrade.noise} --jpeg ${degrade.jpeg}
+    deps:
+      - data/raw/DIV2K_valid_HR
+      - src/data/degrade.py
+    params:
+      - degrade
+    outs:
+      - data/processed/DIV2K_valid_LR
