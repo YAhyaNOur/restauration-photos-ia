@@ -1,0 +1,31 @@
+# Paramètres de dégradation (utilisés par src/data/degrade.py et dvc.yaml)
+degrade:
+  scale: 4
+  blur: 1.2
+  noise: 6.0
+  jpeg: 60
+
+# Paramètres des données et des patchs
+data:
+  raw_train_hr: data/raw/DIV2K_train_HR
+  raw_valid_hr: data/raw/DIV2K_valid_HR
+  processed_train_lr: data/processed/DIV2K_train_LR
+  processed_valid_lr: data/processed/DIV2K_valid_LR
+  splits_dir: splits
+  patch_size_lr: 64
+  patch_size_hr: 256
+
+# Hyperparamètres d'entraînement
+train:
+  seed: 42
+  batch_size: 16
+  epochs: 20
+  lr: 0.0001
+  num_workers: 0
+
+# Architecture du modèle SRResNet
+model:
+  scale: 4
+  num_channels: 3
+  num_features: 64
+  num_blocks: 16
