@@ -1,5 +1,6 @@
 import argparse
 import random
+import sys
 from pathlib import Path
 import numpy as np
 import yaml
@@ -11,7 +12,7 @@ import torchvision.transforms.functional as TF
 import mlflow
 
 # Assure la résolution des modules depuis la racine du projet
-ROOT_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 

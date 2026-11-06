@@ -1,16 +1,16 @@
 # Paramètres de dégradation (utilisés par src/data/degrade.py et dvc.yaml)
 degrade:
   scale: 4
-  blur: 1.2
-  noise: 6.0
-  jpeg: 60
+  blur: 2.0
+  noise: 15
+  jpeg: 30
 
 # Paramètres des données et des patchs
 data:
   raw_train_hr: data/raw/DIV2K_train_HR
   raw_valid_hr: data/raw/DIV2K_valid_HR
-  processed_train_lr: data/processed/DIV2K_train_LR
-  processed_valid_lr: data/processed/DIV2K_valid_LR
+  processed_train_lr: data/processed/train_LR
+  processed_valid_lr: data/processed/valid_LR
   splits_dir: splits
   patch_size_lr: 64
   patch_size_hr: 256
