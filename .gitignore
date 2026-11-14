@@ -4,3 +4,6 @@ __pycache__/
 *.pt
 *.pth
 *.onnx
+mlflow.db
+samples/
+params_test.yaml
