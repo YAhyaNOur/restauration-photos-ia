@@ -1,0 +1,54 @@
+schema: '2.0'
+stages:
+  degrade_train:
+    cmd: python src/data/degrade.py --input data/raw/DIV2K_train_HR --output 
+      data/processed/train_LR --scale 4 --blur 2.0 --noise 15 --jpeg 30
+    deps:
+    - path: data/raw/DIV2K_train_HR
+      hash: md5
+      md5: 7366bd685982d083d8c1c296e7aac0c2.dir
+      size: 3533759878
+      nfiles: 800
+    - path: src/data/degrade.py
+      hash: md5
+      md5: 5f89a95eead5900d3f8c4e6577c73869
+      size: 1790
+    params:
+      params.yaml:
+        degrade:
+          scale: 4
+          blur: 2.0
+          noise: 15
+          jpeg: 30
+    outs:
+    - path: data/processed/train_LR
+      hash: md5
+      md5: 55e4df907d99351465d7dcc1d513a322.dir
+      size: 219118178
+      nfiles: 800
+  degrade_valid:
+    cmd: python src/data/degrade.py --input data/raw/DIV2K_valid_HR --output 
+      data/processed/valid_LR --scale 4 --blur 2.0 --noise 15 --jpeg 30
+    deps:
+    - path: data/raw/DIV2K_valid_HR
+      hash: md5
+      md5: 0b8bda908dd5048844fd816ded23fd6c.dir
+      size: 449507452
+      nfiles: 100
+    - path: src/data/degrade.py
+      hash: md5
+      md5: 5f89a95eead5900d3f8c4e6577c73869
+      size: 1790
+    params:
+      params.yaml:
+        degrade:
+          scale: 4
+          blur: 2.0
+          noise: 15
+          jpeg: 30
+    outs:
+    - path: data/processed/valid_LR
+      hash: md5
+      md5: cfc5e5df1655ae3112e91313c1576f93.dir
+      size: 28000884
+      nfiles: 100
