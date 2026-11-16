@@ -49,6 +49,24 @@ def evaluate_dataset(model, dataloader, device):
     avg_psnr = total_psnr / max(1, num_batches)
     avg_ssim = total_ssim / max(1, num_batches)
     return avg_psnr, avg_ssim
+def evaluate_bicubic(dataloader, device, scale=4):
+    """Repère : PSNR et SSIM d'un simple agrandissement bicubique, sans modèle."""
+    total_psnr = 0.0
+    total_ssim = 0.0
+    num_batches = len(dataloader)
+
+    with torch.no_grad():
+        for lr, hr in dataloader:
+            lr, hr = lr.to(device), hr.to(device)
+            up = torch.nn.functional.interpolate(
+                lr, scale_factor=scale, mode="bicubic", align_corners=False
+            )
+            up = torch.clamp(up, 0.0, 1.0)
+
+            total_psnr += calculate_psnr(up, hr)
+            total_ssim += calculate_ssim(up, hr)
+
+    return total_psnr / max(1, num_batches), total_ssim / max(1, num_batches)
 
 
 def export_to_onnx(model, onnx_path, device="cpu", input_size=(64, 64)):
@@ -82,6 +100,7 @@ def main():
     parser.add_argument("--split", default="test", choices=["train", "val", "test"], help="Jeu de données à évaluer")
     parser.add_argument("--export-onnx", default=None, help="Chemin de sortie pour l'export ONNX (ex: checkpoints/srresnet.onnx)")
     parser.add_argument("--batch-size", type=int, default=16, help="Taille des lots")
+    parser.add_argument("--bicubic", action="store_true", help="Affiche aussi le repère bicubique (sans modèle)")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -97,6 +116,9 @@ def main():
     print(f"Évaluation sur le split '{args.split}' ({len(dataset)} paires)...")
     psnr, ssim = evaluate_dataset(model, dataloader, device)
     print(f"Résultats [{args.split}] - PSNR: {psnr:.2f} dB | SSIM: {ssim:.4f}")
+    if args.bicubic:
+        b_psnr, b_ssim = evaluate_bicubic(dataloader, device)
+        print(f"Repère bicubique [{args.split}] - PSNR: {b_psnr:.2f} dB | SSIM: {b_ssim:.4f}")
 
     # Export ONNX si demandé
     if args.export_onnx:
