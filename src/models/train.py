@@ -7,7 +7,7 @@ import yaml
 from PIL import Image
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
+from torch.utils.data import ConcatDataset, DataLoader
 import torchvision.transforms.functional as TF
 import mlflow
 
@@ -108,6 +108,7 @@ def main():
 
     # Chargement des données
     train_dataset = create_dataset_from_config("train", args.config)
+    train_dataset = ConcatDataset([train_dataset] * cfg["train"].get("repeat", 1))
     val_dataset = create_dataset_from_config("val", args.config)
 
     train_loader = DataLoader(
