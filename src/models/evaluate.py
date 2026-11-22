@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 from pathlib import Path
 import yaml
@@ -100,6 +101,7 @@ def main():
     parser.add_argument("--split", default="test", choices=["train", "val", "test"], help="Jeu de données à évaluer")
     parser.add_argument("--export-onnx", default=None, help="Chemin de sortie pour l'export ONNX (ex: checkpoints/srresnet.onnx)")
     parser.add_argument("--batch-size", type=int, default=16, help="Taille des lots")
+    parser.add_argument("--metrics-out", default=None, help="Fichier JSON où enregistrer les scores")
     parser.add_argument("--bicubic", action="store_true", help="Affiche aussi le repère bicubique (sans modèle)")
     args = parser.parse_args()
 
@@ -112,13 +114,21 @@ def main():
     # Chargement du dataset (test se lit dans train_LR)
     dataset = create_dataset_from_config(args.split, args.config)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
-
     print(f"Évaluation sur le split '{args.split}' ({len(dataset)} paires)...")
     psnr, ssim = evaluate_dataset(model, dataloader, device)
     print(f"Résultats [{args.split}] - PSNR: {psnr:.2f} dB | SSIM: {ssim:.4f}")
+    results = {"split": args.split, "model": {"psnr": float(psnr), "ssim": float(ssim)}}
+
     if args.bicubic:
         b_psnr, b_ssim = evaluate_bicubic(dataloader, device)
         print(f"Repère bicubique [{args.split}] - PSNR: {b_psnr:.2f} dB | SSIM: {b_ssim:.4f}")
+        results["bicubic"] = {"psnr": float(b_psnr), "ssim": float(b_ssim)}
+
+    if args.metrics_out:
+        out = Path(args.metrics_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(results, indent=2), encoding="utf-8")
+        print(f"Scores enregistrés dans {out}")
 
     # Export ONNX si demandé
     if args.export_onnx:
@@ -127,4 +137,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

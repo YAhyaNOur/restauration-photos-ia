@@ -36,3 +36,18 @@ stages:
       - data
     outs:
       - checkpoints/srresnet_best.pt
+
+  evaluate:
+    cmd: python src/models/evaluate.py --config params.yaml --split test --bicubic --checkpoint checkpoints/srresnet_best.pt --metrics-out metrics/test_metrics.json
+    deps:
+      - src/models/evaluate.py
+      - checkpoints/srresnet_best.pt
+      - data/raw/DIV2K_train_HR
+      - data/processed/train_LR
+      - splits
+    params:
+      - data
+      - model
+    metrics:
+      - metrics/test_metrics.json:
+          cache: false
