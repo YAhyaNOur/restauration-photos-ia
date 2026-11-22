@@ -18,3 +18,21 @@ stages:
       - degrade
     outs:
       - data/processed/valid_LR
+  train:
+    cmd: python src/models/train.py --config params.yaml
+    deps:
+      - src/models/train.py
+      - src/models/srresnet.py
+      - src/data/dataset.py
+      - src/utils/metrics.py
+      - data/raw/DIV2K_train_HR
+      - data/raw/DIV2K_valid_HR
+      - data/processed/train_LR
+      - data/processed/valid_LR
+      - splits
+    params:
+      - train
+      - model
+      - data
+    outs:
+      - checkpoints/srresnet_best.pt
