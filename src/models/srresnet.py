@@ -1,6 +1,4 @@
-from pathlib import Path
 import yaml
-import torch
 import torch.nn as nn
 
 
@@ -26,7 +24,7 @@ class UpsampleBlock(nn.Module):
 
     def __init__(self, num_features=64, upscale_factor=2):
         super().__init__()
-        self.conv = nn.Conv2d(num_features, num_features * (upscale_factor ** 2), kernel_size=3, padding=1)
+        self.conv = nn.Conv2d(num_features, num_features * (upscale_factor**2), kernel_size=3, padding=1)
         self.pixel_shuffle = nn.PixelShuffle(upscale_factor)
         self.prelu = nn.PReLU()
 
@@ -41,20 +39,14 @@ class SRResNet(nn.Module):
         super().__init__()
 
         # 1. Couche d'entrée
-        self.head = nn.Sequential(
-            nn.Conv2d(in_channels, num_features, kernel_size=9, padding=4),
-            nn.PReLU()
-        )
+        self.head = nn.Sequential(nn.Conv2d(in_channels, num_features, kernel_size=9, padding=4), nn.PReLU())
 
         # 2. Corps résiduel : B blocs résiduels consécutifs
-        self.res_blocks = nn.Sequential(
-            *[ResidualBlock(num_features) for _ in range(num_blocks)]
-        )
+        self.res_blocks = nn.Sequential(*[ResidualBlock(num_features) for _ in range(num_blocks)])
 
         # 3. Saut résiduel global (global skip connection)
         self.mid = nn.Sequential(
-            nn.Conv2d(num_features, num_features, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(num_features)
+            nn.Conv2d(num_features, num_features, kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(num_features)
         )
 
         # 4. Sur-échantillonnage (x4 = 2 blocs x2)
@@ -85,5 +77,5 @@ def create_model_from_config(config_path="params.yaml"):
         out_channels=model_cfg.get("num_channels", 3),
         num_features=model_cfg.get("num_features", 64),
         num_blocks=model_cfg.get("num_blocks", 16),
-        scale=model_cfg.get("scale", 4)
+        scale=model_cfg.get("scale", 4),
     )

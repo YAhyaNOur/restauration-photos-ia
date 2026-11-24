@@ -4,7 +4,6 @@ import sys
 from pathlib import Path
 import numpy as np
 import yaml
-from PIL import Image
 import torch
 import torch.nn as nn
 from torch.utils.data import ConcatDataset, DataLoader
@@ -116,13 +115,10 @@ def main():
         batch_size=cfg["train"]["batch_size"],
         shuffle=True,
         num_workers=cfg["train"]["num_workers"],
-        pin_memory=(device.type == "cuda")
+        pin_memory=(device.type == "cuda"),
     )
     val_loader = DataLoader(
-        val_dataset,
-        batch_size=cfg["train"]["batch_size"],
-        shuffle=False,
-        num_workers=cfg["train"]["num_workers"]
+        val_dataset, batch_size=cfg["train"]["batch_size"], shuffle=False, num_workers=cfg["train"]["num_workers"]
     )
 
     # Modèle, optimiseur et fonction de coût L1
@@ -138,15 +134,17 @@ def main():
     mlflow.set_experiment("SRResNet_Baseline")
     with mlflow.start_run(run_name="srresnet_div2k_x4"):
         # Journalisation des paramètres
-        mlflow.log_params({
-            "learning_rate": cfg["train"]["lr"],
-            "batch_size": cfg["train"]["batch_size"],
-            "epochs": cfg["train"]["epochs"],
-            "scale": cfg["degrade"]["scale"],
-            "num_blocks": cfg["model"]["num_blocks"],
-            "num_features": cfg["model"]["num_features"],
-            "seed": cfg["train"]["seed"]
-        })
+        mlflow.log_params(
+            {
+                "learning_rate": cfg["train"]["lr"],
+                "batch_size": cfg["train"]["batch_size"],
+                "epochs": cfg["train"]["epochs"],
+                "scale": cfg["degrade"]["scale"],
+                "num_blocks": cfg["model"]["num_blocks"],
+                "num_features": cfg["model"]["num_features"],
+                "seed": cfg["train"]["seed"],
+            }
+        )
 
         epochs = cfg["train"]["epochs"]
         for epoch in range(1, epochs + 1):
@@ -154,13 +152,12 @@ def main():
             val_psnr, val_ssim = evaluate(model, val_loader, device)
 
             # Enregistrement des métriques dans MLflow
-            mlflow.log_metrics({
-                "train_loss_l1": train_loss,
-                "val_psnr": val_psnr,
-                "val_ssim": val_ssim
-            }, step=epoch)
+            mlflow.log_metrics({"train_loss_l1": train_loss, "val_psnr": val_psnr, "val_ssim": val_ssim}, step=epoch)
 
-            print(f"Époque [{epoch:02d}/{epochs:02d}] - Perte L1: {train_loss:.4f} | Val PSNR: {val_psnr:.2f} dB | Val SSIM: {val_ssim:.4f}")
+            print(
+                f"Époque [{epoch:02d}/{epochs:02d}] - Perte L1: {train_loss:.4f} | "
+                f"Val PSNR: {val_psnr:.2f} dB | Val SSIM: {val_ssim:.4f}"
+            )
 
             # Sauvegarde d'échantillons visuels toutes les 5 époques
             if epoch % 5 == 0 or epoch == epochs:
@@ -170,17 +167,22 @@ def main():
             if val_psnr > best_psnr:
                 best_psnr = val_psnr
                 best_path = checkpoint_dir / "srresnet_best.pt"
-                torch.save({
-                    "epoch": epoch,
-                    "model_state_dict": model.state_dict(),
-                    "optimizer_state_dict": optimizer.state_dict(),
-                    "val_psnr": val_psnr,
-                    "val_ssim": val_ssim,
-                    "config": cfg
-                }, best_path)
+                torch.save(
+                    {
+                        "epoch": epoch,
+                        "model_state_dict": model.state_dict(),
+                        "optimizer_state_dict": optimizer.state_dict(),
+                        "val_psnr": val_psnr,
+                        "val_ssim": val_ssim,
+                        "config": cfg,
+                    },
+                    best_path,
+                )
                 mlflow.log_artifact(str(best_path), artifact_path="models")
 
-    print(f"Entraînement terminé. Meilleur PSNR: {best_psnr:.2f} dB sauvegardé dans {checkpoint_dir / 'srresnet_best.pt'}")
+    print(
+        f"Entraînement terminé. Meilleur PSNR: {best_psnr:.2f} dB sauvegardé dans {checkpoint_dir / 'srresnet_best.pt'}"
+    )
 
 
 if __name__ == "__main__":

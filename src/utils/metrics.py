@@ -27,7 +27,7 @@ def calculate_psnr(pred, target):
 def _gaussian_kernel(window_size=11, sigma=1.5):
     """Génère un noyau Gaussien 2D normalisé pour le calcul local du SSIM."""
     coords = torch.arange(window_size, dtype=torch.float32) - window_size // 2
-    g = torch.exp(-(coords ** 2) / (2.0 * (sigma ** 2)))
+    g = torch.exp(-(coords**2) / (2.0 * (sigma**2)))
     g = g / g.sum()
     kernel_2d = g.unsqueeze(1) * g.unsqueeze(0)
     return kernel_2d.unsqueeze(0).unsqueeze(0)

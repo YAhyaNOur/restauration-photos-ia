@@ -2,7 +2,6 @@ import argparse
 import json
 import sys
 from pathlib import Path
-import yaml
 import torch
 from torch.utils.data import DataLoader
 
@@ -50,6 +49,8 @@ def evaluate_dataset(model, dataloader, device):
     avg_psnr = total_psnr / max(1, num_batches)
     avg_ssim = total_ssim / max(1, num_batches)
     return avg_psnr, avg_ssim
+
+
 def evaluate_bicubic(dataloader, device, scale=4):
     """Repère : PSNR et SSIM d'un simple agrandissement bicubique, sans modèle."""
     total_psnr = 0.0
@@ -59,9 +60,7 @@ def evaluate_bicubic(dataloader, device, scale=4):
     with torch.no_grad():
         for lr, hr in dataloader:
             lr, hr = lr.to(device), hr.to(device)
-            up = torch.nn.functional.interpolate(
-                lr, scale_factor=scale, mode="bicubic", align_corners=False
-            )
+            up = torch.nn.functional.interpolate(lr, scale_factor=scale, mode="bicubic", align_corners=False)
             up = torch.clamp(up, 0.0, 1.0)
 
             total_psnr += calculate_psnr(up, hr)
@@ -88,8 +87,8 @@ def export_to_onnx(model, onnx_path, device="cpu", input_size=(64, 64)):
         output_names=["output"],
         dynamic_axes={
             "input": {0: "batch_size", 2: "height", 3: "width"},
-            "output": {0: "batch_size", 2: "height", 3: "width"}
-        }
+            "output": {0: "batch_size", 2: "height", 3: "width"},
+        },
     )
     print(f"Modèle exporté avec succès en ONNX : {onnx_file}")
 
@@ -99,7 +98,9 @@ def main():
     parser.add_argument("--config", default="params.yaml", help="Chemin du fichier params.yaml")
     parser.add_argument("--checkpoint", default="checkpoints/srresnet_best.pt", help="Chemin du checkpoint .pt")
     parser.add_argument("--split", default="test", choices=["train", "val", "test"], help="Jeu de données à évaluer")
-    parser.add_argument("--export-onnx", default=None, help="Chemin de sortie pour l'export ONNX (ex: checkpoints/srresnet.onnx)")
+    parser.add_argument(
+        "--export-onnx", default=None, help="Chemin de sortie pour l'export ONNX (ex: checkpoints/srresnet.onnx)"
+    )
     parser.add_argument("--batch-size", type=int, default=16, help="Taille des lots")
     parser.add_argument("--metrics-out", default=None, help="Fichier JSON où enregistrer les scores")
     parser.add_argument("--bicubic", action="store_true", help="Affiche aussi le repère bicubique (sans modèle)")
