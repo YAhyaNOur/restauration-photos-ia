@@ -1,0 +1,30 @@
+name: CI - style et tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qualite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer les outils
+        run: pip install flake8==7.5.0 black==26.10.1 pytest
+
+      - name: Verifier le style avec flake8
+        run: flake8 src
+
+      - name: Verifier le formatage avec black
+        run: black --check src
+
+      - name: Lancer les tests avec pytest
+        run: pytest || [ $? -eq 5 ]

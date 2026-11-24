@@ -13,7 +13,7 @@ def degrade(img, scale=4, blur=1.2, noise_std=6.0, jpeg_quality=60, seed=0):
     img = img.convert("RGB")
     w, h = img.size
     # dimensions divisibles par scale
-    w, h = w - w % scale, h - h % scale  
+    w, h = w - w % scale, h - h % scale
     img = img.crop((0, 0, w, h))
 
     img = img.filter(ImageFilter.GaussianBlur(blur))
@@ -44,7 +44,7 @@ def main():
     files = sorted(Path(args.input).glob("*.png"))
     for f in files:
         # graine stable par image
-        seed = zlib.crc32(f.name.encode())  
+        seed = zlib.crc32(f.name.encode())
         lr = degrade(Image.open(f), args.scale, args.blur, args.noise, args.jpeg, seed)
         lr.save(out / f.name)
     print(f"{len(files)} images dégradées dans {out}")

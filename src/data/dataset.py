@@ -2,7 +2,6 @@ import random
 from pathlib import Path
 import yaml
 from PIL import Image
-import torch
 from torch.utils.data import Dataset
 import torchvision.transforms.functional as TF
 
@@ -71,9 +70,7 @@ class SRResNetDataset(Dataset):
         hr_img = Image.open(hr_path).convert("RGB")
 
         # Extraction des patchs synchronisés : LR (64x64) et HR (256x256)
-        lr_patch, hr_patch = random_crop_pair(
-            lr_img, hr_img, self.patch_size_lr, self.scale, self.is_train
-        )
+        lr_patch, hr_patch = random_crop_pair(lr_img, hr_img, self.patch_size_lr, self.scale, self.is_train)
 
         if self.is_train:
             lr_patch, hr_patch = augment_pair(lr_patch, hr_patch)
@@ -85,7 +82,7 @@ class SRResNetDataset(Dataset):
 
 class BicubicUpscaleDataset(Dataset):
     """Dataset PyTorch avec patchs 128x128 où l'entrée LR est pré-agrandie en bicubique à la taille HR.
-    
+
     Utile pour les modèles classiques (ex. SRCNN, VDSR) où l'entrée et la sortie
     partagent la même résolution spatiale (128x128).
     """
@@ -144,14 +141,14 @@ DIV2KDataset = SRResNetDataset
 
 def create_dataset_from_config(split="train", config_path="params.yaml", dataset_type="srresnet"):
     """Crée une instance de Dataset selon params.yaml.
-    
+
     Attention : les images de test (test.txt) proviennent des 800 images du train DIV2K
     (train_HR / train_LR), tandis que val.txt utilise le dossier DIV2K_valid (valid_HR / valid_LR).
     """
     with open(config_path, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
-    is_train = (split == "train")
+    is_train = split == "train"
 
     # train et test se lisent dans les dossiers train (DIV2K_train_HR et train_LR)
     if split in ("train", "test"):
@@ -170,7 +167,7 @@ def create_dataset_from_config(split="train", config_path="params.yaml", dataset
             split_file=split_file,
             patch_size=128,
             scale=cfg["degrade"]["scale"],
-            is_train=is_train
+            is_train=is_train,
         )
 
     return SRResNetDataset(
@@ -179,5 +176,5 @@ def create_dataset_from_config(split="train", config_path="params.yaml", dataset
         split_file=split_file,
         patch_size_lr=cfg["data"].get("patch_size_lr", 64),
         scale=cfg["degrade"]["scale"],
-        is_train=is_train
+        is_train=is_train,
     )
