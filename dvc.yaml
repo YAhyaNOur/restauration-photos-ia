@@ -51,3 +51,45 @@ stages:
     metrics:
       - metrics/test_metrics.json:
           cache: false
+
+  train_srgan:
+    cmd: python src/models/train_srgan.py --config params.yaml
+    deps:
+      - src/models/train_srgan.py
+      - src/models/srresnet.py
+      - src/models/discriminator.py
+      - src/data/dataset.py
+      - src/utils/metrics.py
+      - data/raw/DIV2K_train_HR
+      - data/raw/DIV2K_valid_HR
+      - data/processed/train_LR
+      - data/processed/valid_LR
+      - splits
+      - checkpoints/srresnet_best.pt
+    params:
+      - srgan
+      - model
+      - data
+      - train.seed
+      - train.num_workers
+      - train.repeat
+    outs:
+      - checkpoints/srgan_generator_best.pt
+
+  evaluate_srgan:
+    cmd: python src/models/evaluate_srgan.py --config params.yaml --split test --checkpoint checkpoints/srgan_generator_best.pt --baseline-metrics metrics/test_metrics.json --metrics-out metrics/srgan_test_metrics.json --comparison-out metrics/comparison_report.json
+    deps:
+      - src/models/evaluate_srgan.py
+      - checkpoints/srgan_generator_best.pt
+      - metrics/test_metrics.json
+      - data/raw/DIV2K_train_HR
+      - data/processed/train_LR
+      - splits
+    params:
+      - data
+      - model
+    metrics:
+      - metrics/srgan_test_metrics.json:
+          cache: false
+      - metrics/comparison_report.json:
+          cache: false

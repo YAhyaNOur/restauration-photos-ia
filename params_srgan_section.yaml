@@ -1,0 +1,16 @@
+# Section `srgan:` de params.yaml. Les clés marquées (NOUVEAU) sont facultatives : valeur par défaut entre parenthèses.
+srgan:
+  epochs: 50
+  batch_size: 8                 # baisser à 4 si "CUDA out of memory"
+  generator_lr: 1.0e-4
+  discriminator_lr: 1.0e-4
+  pretrained_generator: checkpoints/srresnet_best.pt
+  content_loss_weight: 1.0      # perte perceptuelle VGG19
+  adversarial_loss_weight: 0.001
+  pixel_loss_weight: 0.01       # (NOUVEAU, 0.01) petite perte L1 qui stabilise les couleurs ; 0 pour la désactiver
+  warmup_epochs: 5              # (NOUVEAU, 5) échauffement L1 UNIQUEMENT si le checkpoint SRResNet est introuvable
+  select_metric: val_lpips      # (NOUVEAU, val_lpips) critère du meilleur modèle : val_lpips | val_psnr | val_ssim
+  scheduler:
+    enabled: true
+    step_size: 25
+    gamma: 0.5

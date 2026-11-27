@@ -16,7 +16,6 @@ data:
   patch_size_hr: 256
 
 # Hyperparamètres d'entraînement
-# Hyperparamètres d'entraînement
 train:
   seed: 42
   batch_size: 4
@@ -30,3 +29,17 @@ model:
   num_channels: 3
   num_features: 64
   num_blocks: 16
+
+# Hyperparamètres SRGAN (Person 2)
+srgan:
+  generator_lr: 0.0001
+  discriminator_lr: 0.0001
+  batch_size: 4
+  epochs: 50
+  content_loss_weight: 1.0
+  adversarial_loss_weight: 0.001
+  pretrained_generator: checkpoints/srresnet_best.pt
+  scheduler:
+    enabled: true
+    step_size: 25
+    gamma: 0.5
